@@ -23,8 +23,8 @@ func (s *service) CreateTask(name, description string) (string, error) {
 		}
 	}
 
-	if task.ID != "" {
-		return "", fmt.Errorf("task with name %s already exists", name)
+	if task.ID != "" || task.Status == PENDING {
+		return "", fmt.Errorf("pending task with name \"%s\" already exists", name)
 	}
 
 	// create task
@@ -37,7 +37,7 @@ func (s *service) CreateTask(name, description string) (string, error) {
 
 	_, err = s.Repository.CreateTask(task)
 	if err != nil {
-		return "", fmt.Errorf("error creating task: %v", err)
+		return "", fmt.Errorf("error creating task: \"%v\"", err)
 	}
 
 	return "Task created!", nil

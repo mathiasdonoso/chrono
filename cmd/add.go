@@ -5,7 +5,6 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/mathiasdonoso/chrono/db"
 	"github.com/mathiasdonoso/chrono/internal/task"
@@ -24,14 +23,17 @@ The new task will have the following properties:
 - CreatedAt: The date and time the task was created
 - UpdatedAt: The date and time the task was last updated
 `,
+	Args: cobra.ExactArgs(1),
+	Version: "0.0.1",
 	Run: func(cmd *cobra.Command, args []string) {
-		name, _ := cmd.Flags().GetString("name")
+		name := args[0]
 		description, _ := cmd.Flags().GetString("description")
 
 		dbConn, err := db.Connect()
 		defer dbConn.Close()
+
 		if err != nil {
-			log.Fatalf("Error connecting to db: %v", err)
+			fmt.Println("Error connecting to db:", err)
 		}
 
 		taskRepo := task.NewRepository(dbConn.GetDB())
@@ -51,18 +53,8 @@ The new task will have the following properties:
 func init() {
 	rootCmd.AddCommand(addCmd)
 
-	// Here you will define your flags and configuration settings.
+	// TODO: Add [name] argument as required (not flag) in --help section
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// addCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// addCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	addCmd.Flags().StringP("name", "n", "", "The name of the task")
 	addCmd.Flags().StringP("description", "d", "", "A brief description of the task") 
 }
-
-
 
