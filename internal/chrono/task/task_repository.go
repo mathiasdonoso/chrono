@@ -61,7 +61,7 @@ func (r *repository) FindPendingTaskByName(name string) (*Task, error) {
 	return &task, nil
 }
 
-func (r *repository) CreateTask(task *Task) (*Task, error) {
+func (r *repository) CreateTask(task *Task) error {
 	query := "INSERT INTO tasks (id, name, description, status, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6);"
 	_, err := r.db.Exec(
 		query,
@@ -73,9 +73,9 @@ func (r *repository) CreateTask(task *Task) (*Task, error) {
 		task.UpdatedAt,
 	)
 	if err != nil {
-		return &Task{}, err
+		return err
 	}
 
-	return task, nil
+	return nil
 }
 

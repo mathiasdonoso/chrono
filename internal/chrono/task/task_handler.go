@@ -9,11 +9,11 @@ func NewHandler(service Service) *Handler {
 }
 
 func (h *Handler) CreateTask(name, description string) (string, error) {
-    res, err := h.Service.CreateTask(name, description)
+    err := h.Service.CreateTask(name, description)
     if err != nil {
         return "", err
     }
 
-    return res, nil
+    return "Task created", nil
 }
 
