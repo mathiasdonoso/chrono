@@ -24,8 +24,10 @@ type Task struct {
 type Repository interface {
 	// CreateTask creates a new task in the database with status "pending".
 	CreateTask(task *Task) (*Task, error)
-	// FindTaskByName returns a task with the given name if it exists.
-	FindTaskByName(name string) (*Task, error)
+	// FindTaskById returns a task with the given id.
+	FindTaskById(id string) (*Task, error)
+	// FindPendingTaskByName returns a task with the given name and status "pending".
+	FindPendingTaskByName(name string) (*Task, error)
 }
 
 type Service interface {

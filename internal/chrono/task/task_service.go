@@ -16,18 +16,17 @@ func NewService(r Repository) Service {
 }
 
 func (s *service) CreateTask(name, description string) (string, error) {
-	task, err := s.Repository.FindTaskByName(name)
+	task, err := s.Repository.FindPendingTaskByName(name)
 	if err != nil {
-		if err.Error() != "task with name "+name+" not found" {
-			return "", err
+		if err.Error() != "not found" {
+			return "", fmt.Errorf("error consulting the database")
 		}
 	}
 
-	if task.ID != "" || task.Status == PENDING {
-		return "", fmt.Errorf("pending task with name \"%s\" already exists", name)
+	if task.ID != "" {
+		return "", fmt.Errorf("pending task \"%s\" already exists", name)
 	}
 
-	// create task
 	task.ID = uuid.New().String()
 	task.Name = name
 	task.Description = description

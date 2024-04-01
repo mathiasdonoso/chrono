@@ -7,7 +7,7 @@ import (
 	"fmt"
 
 	"github.com/mathiasdonoso/chrono/db"
-	"github.com/mathiasdonoso/chrono/internal/task"
+	"github.com/mathiasdonoso/chrono/internal/chrono/task"
 	"github.com/spf13/cobra"
 )
 
