@@ -9,6 +9,7 @@ type MockRepository interface {
 	CreateTask(task *Task) error
 	FindTaskById(id string) (*Task, error)
 	FindPendingTaskByName(name string) (*Task, error)
+	ListTasksByStatus(statuses ...Status) ([]Task, error)
 }
 
 type mockTaskRepository struct{

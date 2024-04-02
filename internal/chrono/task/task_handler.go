@@ -17,3 +17,12 @@ func (h *Handler) CreateTask(name, description string) (string, error) {
     return "Task created", nil
 }
 
+func (h *Handler) ListTasksByStatus(statuses ...Status) ([]Task, error) {
+    tasks, err := h.Service.ListTasksByStatus(statuses...)
+    if err != nil {
+        return []Task{}, err
+    }
+
+    return tasks, nil
+}
+
