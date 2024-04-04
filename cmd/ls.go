@@ -5,7 +5,9 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"strings"
+	"text/tabwriter"
 
 	"github.com/mathiasdonoso/chrono/db"
 	"github.com/mathiasdonoso/chrono/internal/chrono/task"
@@ -49,29 +51,32 @@ showing the following information:
 			return
 		}
 
-		response := formatResponse(res)
-		fmt.Println(response)
+		printFormatedResponse(res)
 	},
 }
 
-func formatResponse(tasks []task.Task) string {
-	// TODO: Make this prettier
-	res := "ID\tName\tStatus\tCreated_at\tUpdated_at\n"
-	for _, t := range tasks {
-		i := "%s\t%s\t%s\t%s\t%s\n"
+func printFormatedResponse(tasks []task.Task) {
+	w := tabwriter.NewWriter(os.Stdout, 1, 1, 1, ' ', 0)
+	fmt.Fprintln(w, "ID\t Name\t Status\t Created_at\t Updated_at")
 
+	for _, t := range tasks {
 		id := strings.Split(t.ID, "-")[0]
 
-		res += fmt.Sprintf(i,
-			id,
-			t.Name,
-			// t.Description,
-			t.Status,
-			t.CreatedAt.Format("2006-01-02 15:04:05"),
-			t.UpdatedAt.Format("2006-01-02 15:04:05"),
+		if len(t.Name) > 20 {
+			t.Name = t.Name[:20] + "..."
+		}
+
+		fmt.Fprintln(
+			w,
+			id + "\t",
+			t.Name + "\t",
+			t.Status + "\t",
+			t.CreatedAt.Format("2006-01-02 15:04:05") + "\t",
+			t.UpdatedAt.Format("2006-01-02 15:04:05") + "\t",
 		)
 	}
-	return res
+
+	w.Flush()
 }
 
 func init() {
