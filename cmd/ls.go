@@ -27,6 +27,7 @@ showing the following information:
 - CreatedAt: The date and time the task was created
 - UpdatedAt: The date and time the task was last updated
 `,
+	Version: "0.0.1",
 	Run: func(cmd *cobra.Command, args []string) {
 		all, _ := cmd.Flags().GetBool("all")
 

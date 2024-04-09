@@ -8,13 +8,31 @@ import (
 type MockRepository interface {
 	CreateTask(task *Task) error
 	FindTaskById(id string) (*Task, error)
+	FindTaskByPartialId(partialId string, filter Filter) (*Task, error)
 	FindPendingTaskByName(name string) (*Task, error)
 	ListTasksByStatus(statuses ...Status) ([]Task, error)
+	RemoveTaskById(id string) error
 }
 
-type mockTaskRepository struct{
+type mockTaskRepository struct {
 	taskCreated *Task
 	MockRepository
+}
+
+// FindTaskById implements Repository.
+// Subtle: this method shadows the method (MockRepository).FindTaskById of mockTaskRepository.MockRepository.
+func (r mockTaskRepository) FindTaskById(id string) (*Task, error) {
+	return &Task{}, nil
+}
+
+// FindTaskByPartialId implements Repository.
+func (r mockTaskRepository) FindTaskByPartialId(partialId string, filter Filter) (*Task, error) {
+	return &Task{}, nil
+}
+
+// RemoveTaskById implements Repository.
+func (r mockTaskRepository) RemoveTaskById(id string) error {
+	return nil
 }
 
 func (r mockTaskRepository) CreateTask(task *Task) error {
@@ -49,6 +67,34 @@ func (r mockTaskRepository) ListTasksByStatus(statuses ...Status) ([]Task, error
 
 type mockTaskFindDataRepository struct {
 	MockRepository
+}
+
+// CreateTask implements Repository.
+// Subtle: this method shadows the method (MockRepository).CreateTask of mockTaskFindDataRepository.MockRepository.
+func (r mockTaskFindDataRepository) CreateTask(task *Task) error {
+	return nil
+}
+
+// FindTaskById implements Repository.
+// Subtle: this method shadows the method (MockRepository).FindTaskById of mockTaskFindDataRepository.MockRepository.
+func (r mockTaskFindDataRepository) FindTaskById(id string) (*Task, error) {
+	return &Task{}, nil
+}
+
+// FindTaskByPartialId implements Repository.
+func (r mockTaskFindDataRepository) FindTaskByPartialId(partialId string, filter Filter) (*Task, error) {
+	return &Task{}, nil
+}
+
+// ListTasksByStatus implements Repository.
+// Subtle: this method shadows the method (MockRepository).ListTasksByStatus of mockTaskFindDataRepository.MockRepository.
+func (r mockTaskFindDataRepository) ListTasksByStatus(statuses ...Status) ([]Task, error) {
+	return []Task{}, nil
+}
+
+// RemoveTaskById implements Repository.
+func (r mockTaskFindDataRepository) RemoveTaskById(id string) error {
+	return nil
 }
 
 func (r mockTaskFindDataRepository) FindPendingTaskByName(name string) (*Task, error) {
@@ -96,7 +142,6 @@ func TestCreateTaskShouldNotCreateTaskWhenTaskExists(t *testing.T) {
 		t.Errorf("expected error while creating task")
 	}
 }
-
 
 func TestListTasksByStatusShouldReturnTasks(t *testing.T) {
 	r := mockTaskRepository{}

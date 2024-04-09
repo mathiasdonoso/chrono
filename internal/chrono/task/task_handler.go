@@ -26,3 +26,12 @@ func (h *Handler) ListTasksByStatus(statuses ...Status) ([]Task, error) {
     return tasks, nil
 }
 
+func (h *Handler) RemoveTaskByPartialId(partialId string) (string, error) {
+    err := h.Service.RemoveTaskByPartialId(partialId)
+    if err != nil {
+        return "", err
+    }
+
+    return "Task removed", nil
+}
+
