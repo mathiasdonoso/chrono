@@ -18,7 +18,7 @@ func NewService(r Repository) Service {
 func (s *service) ListTasksByStatus(statuses ...Status) ([]Task, error) {
 	tasks, err := s.Repository.ListTasksByStatus(statuses...)
 	if err != nil {
-		return nil, fmt.Errorf("error consulting the database")
+		return nil, fmt.Errorf("error consulting the database: %v", err)
 	}
 
 	return tasks, nil
@@ -28,7 +28,7 @@ func (s *service) CreateTask(name, description string) error {
 	task, err := s.Repository.FindPendingTaskByName(name)
 	if err != nil {
 		if err.Error() != "not found" {
-			return fmt.Errorf("error consulting the database")
+			return fmt.Errorf("error consulting the database: %v", err)
 		}
 	}
 
@@ -46,6 +46,24 @@ func (s *service) CreateTask(name, description string) error {
 	err = s.Repository.CreateTask(task)
 	if err != nil {
 		return fmt.Errorf("error creating task: \"%v\"", err)
+	}
+
+	return nil
+}
+
+// RemoveTaskByPartialId implements Service.
+func (s *service) RemoveTaskByPartialId(partialId string) error {
+	task, err := s.Repository.FindTaskByPartialId(partialId, Filter{
+		Statuses: []Status{},
+	})
+
+	if err != nil {
+		return fmt.Errorf("error consulting the database: %v", err)
+	}
+
+	err = s.Repository.RemoveTaskById(task.ID)
+	if err != nil {
+		return fmt.Errorf("error removing task: %v", err)
 	}
 
 	return nil
