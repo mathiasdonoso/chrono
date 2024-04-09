@@ -28,9 +28,13 @@ type Repository interface {
 	FindTaskById(id string) (*Task, error)
 	// FindPendingTaskByName returns a task with the given name and status "pending".
 	FindPendingTaskByName(name string) (*Task, error)
+	// FindTasksByStatus returns all tasks filtering by statuses in the database.
+	ListTasksByStatus(statuses ...Status) ([]Task, error)
 }
 
 type Service interface {
 	// CreateTask creates a new task if one with the same name and status "pending" does not exists already.
 	CreateTask(name, description string) error
+	// ListTasks returns tasks filtering by statuses.
+	ListTasksByStatus(statuses ...Status) ([]Task, error)
 }

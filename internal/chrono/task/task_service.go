@@ -15,6 +15,15 @@ func NewService(r Repository) Service {
 	return &service{r}
 }
 
+func (s *service) ListTasksByStatus(statuses ...Status) ([]Task, error) {
+	tasks, err := s.Repository.ListTasksByStatus(statuses...)
+	if err != nil {
+		return nil, fmt.Errorf("error consulting the database")
+	}
+
+	return tasks, nil
+}
+
 func (s *service) CreateTask(name, description string) error {
 	task, err := s.Repository.FindPendingTaskByName(name)
 	if err != nil {
