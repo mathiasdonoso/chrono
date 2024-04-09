@@ -22,7 +22,7 @@ func (r *repository) ListTasksByStatus(statuses ...Status) ([]Task, error) {
 
 	query := "SELECT id, name, description, status, created_at, updated_at FROM tasks WHERE status IN (" + strings.Join(s, ",") + ");"
 
-	rows, err := r.db.Query(query, strings.Join(s, ","))
+	rows, err := r.db.Query(query)
 	if err != nil {
 		return []Task{}, err
 	}
