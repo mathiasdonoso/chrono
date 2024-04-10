@@ -114,10 +114,21 @@ func (r *repository) FindTaskById(id string) (*Task, error) {
 	return &task, nil
 }
 
-func (r *repository) FindPendingTaskByName(name string) (*Task, error) {
+func (r *repository) FindPendingTaskByName(name string, filter Filter) (*Task, error) {
 	task := Task{}
 
-	query := "SELECT id, name, description, status, created_at, updated_at FROM tasks WHERE name = $1 AND status = 'pending';"
+	query := "SELECT id, name, description, status, created_at, updated_at FROM tasks WHERE name = $1"
+
+	if len(filter.Statuses) > 0 {
+		s := make([]string, len(filter.Statuses))
+		for i, v := range filter.Statuses {
+			s[i] = fmt.Sprintf("'%s'", v)
+		}
+		query += " AND status IN (" + strings.Join(s, ",") + ")"
+	}
+
+	query += ";"
+
 	err := r.db.QueryRow(query, name).Scan(
 		&task.ID,
 		&task.Name,

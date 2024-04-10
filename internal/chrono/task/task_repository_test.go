@@ -49,13 +49,13 @@ func TestFindPendingTaskByNameShouldFindTask(t *testing.T) {
 	rows := sqlmock.NewRows([]string{"id", "name", "description", "status", "created_at", "updated_at"}).
 		AddRow("1", "Task 1", "Description 1", PENDING, time.Now(), time.Now())
 
-	query := regexp.QuoteMeta("SELECT id, name, description, status, created_at, updated_at FROM tasks WHERE name = $1 AND status = 'pending';")
+	query := regexp.QuoteMeta("SELECT id, name, description, status, created_at, updated_at FROM tasks WHERE name = $1 AND status IN ('pending');")
 
 	mock.ExpectQuery(query).WithArgs("Task 1").WillReturnRows(rows)
 
 	r := NewRepository(db)
 
-	task, err := r.FindPendingTaskByName("Task 1")
+	task, err := r.FindPendingTaskByName("Task 1", Filter{Statuses: []Status{PENDING}})
 	if err != nil {
 		t.Errorf("error was not expected while finding task: %s", err)
 	}
@@ -79,13 +79,13 @@ func TestFindPendingTaskByNameShouldNotFindTaskWhenStatusIsNotPending(t *testing
 	sqlmock.NewRows([]string{"id", "name", "description", "status", "created_at", "updated_at"}).
 		AddRow("1", "Task 1", "Description 1", DONE, time.Now(), time.Now())
 
-	query := regexp.QuoteMeta("SELECT id, name, description, status, created_at, updated_at FROM tasks WHERE name = $1 AND status = 'pending';")
+	query := regexp.QuoteMeta("SELECT id, name, description, status, created_at, updated_at FROM tasks WHERE name = $1 AND status IN ('pending');")
 
 	mock.ExpectQuery(query).WithArgs("Task 1").WillReturnError(sql.ErrNoRows)
 
 	r := NewRepository(db)
 
-	_, err = r.FindPendingTaskByName("Task 1")
+	_, err = r.FindPendingTaskByName("Task 1", Filter{Statuses: []Status{PENDING}})
 	if err == nil {
 		t.Errorf("expected error while finding task, got nil")
 	}
@@ -109,13 +109,13 @@ func TestFindPendingTaskByNameShouldNotFindTaskWhenNameDoesNotMatch(t *testing.T
 	sqlmock.NewRows([]string{"id", "name", "description", "status", "created_at", "updated_at"}).
 		AddRow("1", "Task 2", "Description 1", PENDING, time.Now(), time.Now())
 
-	query := regexp.QuoteMeta("SELECT id, name, description, status, created_at, updated_at FROM tasks WHERE name = $1 AND status = 'pending';")
+	query := regexp.QuoteMeta("SELECT id, name, description, status, created_at, updated_at FROM tasks WHERE name = $1 AND status IN ('pending');")
 
 	mock.ExpectQuery(query).WithArgs("Task 1").WillReturnError(sql.ErrNoRows)
 
 	r := NewRepository(db)
 
-	_, err = r.FindPendingTaskByName("Task 1")
+	_, err = r.FindPendingTaskByName("Task 1", Filter{Statuses: []Status{PENDING}})
 	if err == nil {
 		t.Errorf("expected error while finding task, got nil")
 	}
