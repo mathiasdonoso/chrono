@@ -9,7 +9,7 @@ type MockRepository interface {
 	CreateTask(task *Task) error
 	FindTaskById(id string) (*Task, error)
 	FindTaskByPartialId(partialId string, filter Filter) (*Task, error)
-	FindPendingTaskByName(name string) (*Task, error)
+	FindPendingTaskByName(name string, filter Filter) (*Task, error)
 	ListTasksByStatus(statuses ...Status) ([]Task, error)
 	RemoveTaskById(id string) error
 }
@@ -40,7 +40,7 @@ func (r mockTaskRepository) CreateTask(task *Task) error {
 	return nil
 }
 
-func (r mockTaskRepository) FindPendingTaskByName(name string) (*Task, error) {
+func (r mockTaskRepository) FindPendingTaskByName(name string, filter Filter) (*Task, error) {
 	return &Task{}, nil
 }
 
@@ -97,7 +97,7 @@ func (r mockTaskFindDataRepository) RemoveTaskById(id string) error {
 	return nil
 }
 
-func (r mockTaskFindDataRepository) FindPendingTaskByName(name string) (*Task, error) {
+func (r mockTaskFindDataRepository) FindPendingTaskByName(name string, filter Filter) (*Task, error) {
 	return &Task{
 		ID:          "1",
 		Name:        name,

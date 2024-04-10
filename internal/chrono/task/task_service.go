@@ -25,7 +25,9 @@ func (s *service) ListTasksByStatus(statuses ...Status) ([]Task, error) {
 }
 
 func (s *service) CreateTask(name, description string) error {
-	task, err := s.Repository.FindPendingTaskByName(name)
+	task, err := s.Repository.FindPendingTaskByName(name, Filter{
+		Statuses: []Status{PENDING, IN_PROGRESS, PAUSED},
+	})
 	if err != nil {
 		if err.Error() != "not found" {
 			return fmt.Errorf("error consulting the database: %v", err)
