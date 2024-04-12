@@ -4,6 +4,9 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 type repository struct {
@@ -55,7 +58,7 @@ func (r *repository) ListTasksByStatus(statuses ...Status) ([]Task, error) {
 	return tasks, nil
 }
 
-func (r *repository) FindTaskByPartialId(partialId string, filter Filter) (*Task, error) {
+func (r *repository) FindTaskByPartialId(partialId string, filter Filter) (Task, error) {
 	task := Task{}
 
 	query := "SELECT id, name, description, status, created_at, updated_at FROM tasks WHERE id LIKE $1"
@@ -81,16 +84,80 @@ func (r *repository) FindTaskByPartialId(partialId string, filter Filter) (*Task
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return &Task{}, fmt.Errorf("not found")
+			return Task{}, fmt.Errorf("not found")
 		}
 
-		return &Task{}, err
+		return Task{}, err
 	}
 
-	return &task, nil
+	return task, nil
 }
 
-func (r *repository) FindTaskById(id string) (*Task, error) {
+func (r *repository) UpdateTask(task *Task) error {
+	task.UpdatedAt = time.Now()
+
+	fmt.Println(task)
+
+	query := "UPDATE tasks SET name = $2, status = $3, updated_at = $4 WHERE id = $1;"
+	_, err := r.db.Exec(
+		query,
+		task.ID,
+		task.Name,
+		task.Status,
+		task.UpdatedAt,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *repository) FindByIdOrCreate(idOrName string, filter Filter) (Task, error) {
+	task := Task{}
+
+	query := "SELECT id, name, description, status, created_at, updated_at FROM tasks WHERE id LIKE $1"
+
+	if len(filter.Statuses) > 0 {
+		s := make([]string, len(filter.Statuses))
+		for i, v := range filter.Statuses {
+			s[i] = fmt.Sprintf("'%s'", v)
+		}
+		query += " AND status IN (" + strings.Join(s, ",") + ")"
+	}
+
+	query += ";"
+
+	err := r.db.QueryRow(query, idOrName+"%").Scan(
+		&task.ID,
+		&task.Name,
+		&task.Description,
+		&task.Status,
+		&task.CreatedAt,
+		&task.UpdatedAt,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			newTask := Task{}
+			newTask.Name = idOrName
+
+			err = r.CreateTask(&newTask)
+
+			if err != nil {
+				return Task{}, fmt.Errorf("not found")
+			}
+
+			return newTask, nil
+		} else {
+			return Task{}, fmt.Errorf("not found")
+		}
+	}
+
+	return task, nil
+}
+
+func (r *repository) FindTaskById(id string) (Task, error) {
 	task := Task{}
 
 	query := "SELECT id, name, description, status, created_at, updated_at FROM tasks WHERE id = $1;"
@@ -105,16 +172,16 @@ func (r *repository) FindTaskById(id string) (*Task, error) {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return &Task{}, fmt.Errorf("not found")
+			return Task{}, fmt.Errorf("not found")
 		}
 
-		return &Task{}, err
+		return Task{}, err
 	}
 
-	return &task, nil
+	return task, nil
 }
 
-func (r *repository) FindPendingTaskByName(name string, filter Filter) (*Task, error) {
+func (r *repository) FindPendingTaskByName(name string, filter Filter) (Task, error) {
 	task := Task{}
 
 	query := "SELECT id, name, description, status, created_at, updated_at FROM tasks WHERE name = $1"
@@ -140,16 +207,24 @@ func (r *repository) FindPendingTaskByName(name string, filter Filter) (*Task, e
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return &Task{}, fmt.Errorf("not found")
+			return Task{}, fmt.Errorf("not found")
 		}
 
-		return &Task{}, err
+		return Task{}, err
 	}
 
-	return &task, nil
+	return task, nil
 }
 
 func (r *repository) CreateTask(task *Task) error {
+	task.ID = uuid.New().String()
+	task.Description = ""
+	if task.Status == "" {
+		task.Status = PENDING
+	}
+	task.CreatedAt = time.Now()
+	task.UpdatedAt = time.Now()
+
 	query := "INSERT INTO tasks (id, name, description, status, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6);"
 	_, err := r.db.Exec(
 		query,

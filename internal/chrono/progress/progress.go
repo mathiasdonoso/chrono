@@ -14,5 +14,5 @@ type Progress struct {
 
 type ProgressRepository interface {
     // AddProgress adds a new progress to the database.
-    AddProgress(progress Progress) error
+    AddProgress(progress *Progress) error
 }

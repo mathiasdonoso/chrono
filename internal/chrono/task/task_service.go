@@ -2,9 +2,7 @@ package task
 
 import (
 	"fmt"
-	"time"
 
-	"github.com/google/uuid"
 	"github.com/mathiasdonoso/chrono/internal/chrono/progress"
 )
 
@@ -43,15 +41,9 @@ func (s *service) CreateTask(name, description string) error {
 		return fmt.Errorf("pending task \"%s\" already exists", name)
 	}
 
-	task.ID = uuid.New().String()
 	task.Name = name
-	task.Description = description
-	task.Status = PENDING
-	task.CreatedAt = time.Now()
-	task.UpdatedAt = time.Now()
 
-	err = s.TaskRepository.CreateTask(task)
-	if err != nil {
+	err = s.TaskRepository.CreateTask(&task); if err != nil {
 		return fmt.Errorf("error creating task: \"%v\"", err)
 	}
 
@@ -68,72 +60,40 @@ func (s *service) RemoveTaskByPartialId(partialId string) error {
 		return fmt.Errorf("error consulting the database: %v", err)
 	}
 
-	err = s.TaskRepository.RemoveTaskById(task.ID)
-	if err != nil {
+	err = s.TaskRepository.RemoveTaskById(task.ID); if err != nil {
 		return fmt.Errorf("error removing task: %v", err)
 	}
 
 	return nil
 }
 
-func (s *service) StartTask(idOrName string) (string, error) {
-	var task Task
-
-	task, err := s.TaskRepository.FindTaskByPartialId(idOrName, Filter{
+func (s *service) StartTask(idOrName string) error {
+	task, err := s.TaskRepository.FindByIdOrCreate(idOrName, Filter{
 		Statuses: []Status{PENDING, IN_PROGRESS, PAUSED},
 	})
-
-	if err == nil {
-		// err = s.TaskRepository.UpdateTaskStatus(task.ID, IN_PROGRESS)
-		// if err != nil {
-		// 	return "", fmt.Errorf("error updating task status: %v", err)
-		// }
-		// return "Task started", nil
+	if err != nil {
+		fmt.Errorf("error consulting the database: %v", err)
 	}
 
-	if err.Error() == "not found" {
-		task.ID = uuid.New().String()
-		task.Name = idOrName
+	// progress := progress.Progress{}
+	// progress.TaskID = task.ID
+	// progress.StatusInit = string(task.Status)
+
+	// err = s.ProgressRepository.AddProgress(&progress)
+	// fmt.Println("2", progress)
+	// if err != nil {
+	// 	fmt.Errorf("error creating progress: %v", err)
+	// }
+
+	fmt.Println("status is", task.Status)
+
+	// FIX: This is not updating the task status
+	if task.Status != IN_PROGRESS {
 		task.Status = IN_PROGRESS
-		task.CreatedAt = time.Now()
-		task.UpdatedAt = time.Now()
-
-		err = s.TaskRepository.CreateTask(&task)
-		if err != nil {
-			return "", fmt.Errorf("error creating task: \"%v\"", err)
-		}
-		task, err = s.TaskRepository.CreateTask()
-	}
-
-	if err != nil {
-		if err.Error() == "not found" {
-			task.ID = uuid.New().String()
-			task.Name = idOrName
-			task.Status = IN_PROGRESS
-			task.CreatedAt = time.Now()
-			task.UpdatedAt = time.Now()
-
-			err = s.TaskRepository.CreateTask(&task)
-			if err != nil {
-				return "", fmt.Errorf("error creating task: \"%v\"", err)
-			}
-			task, err = s.TaskRepository.CreateTask()
-		} else {
-			return "", fmt.Errorf("error consulting the database: %v", err)
+		err = s.TaskRepository.UpdateTask(&task); if err != nil {
+			return fmt.Errorf("error updating task: %v", err)
 		}
 	}
 
-	err = s.ProgressRepository.AddProgress(progress.Progress{
-		ID:			  uuid.New().String(),
-		TaskID:       task.ID,
-		StatusInit:   string(task.Status),
-		CreatedAt:    time.Time{},
-		UpdatedAt:    time.Time{},
-	})
-
-	if err != nil {
-		return "", fmt.Errorf("error creating progress: %v", err)
-	}
-
-	return "Task started", nil
+	return nil
 }

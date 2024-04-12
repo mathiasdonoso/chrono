@@ -36,7 +36,6 @@ var startCmd = &cobra.Command{
 
 		res, err := taskHandler.StartTask(idOrName)
 
-		// res, err := taskHandler.RemoveTaskByPartialId(id)
 		if err != nil {
 			fmt.Println("Error starting task:", err)
 			return
