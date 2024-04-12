@@ -21,7 +21,7 @@ type Task struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type Repository interface {
+type TaskRepository interface {
 	// CreateTask creates a new task in the database with status "pending".
 	CreateTask(task *Task) error
 	// FindTaskById returns a task with the given id.
@@ -43,4 +43,6 @@ type Service interface {
 	ListTasksByStatus(statuses ...Status) ([]Task, error)
 	// RemoveTaskByPartialId removes a task by partial id.
 	RemoveTaskByPartialId(partialId string) error
+	// StartTask starts a task by id or name.
+	StartTask(idOrName string) (string, error)
 }

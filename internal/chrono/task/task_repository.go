@@ -14,7 +14,7 @@ type Filter struct {
 	Statuses []Status
 }
 
-func NewRepository(db *sql.DB) Repository {
+func NewRepository(db *sql.DB) TaskRepository {
 	return &repository{db: db}
 }
 

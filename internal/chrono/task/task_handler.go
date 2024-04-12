@@ -35,3 +35,12 @@ func (h *Handler) RemoveTaskByPartialId(partialId string) (string, error) {
     return "Task removed", nil
 }
 
+func (h *Handler) StartTask(idOrName string) (string, error) {
+    err := h.Service.StartTask(idOrName)
+    if err != nil {
+        return "", err
+    }
+
+    return "Task started", nil
+}
+

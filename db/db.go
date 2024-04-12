@@ -46,13 +46,13 @@ func (d *Database) GetDB() *sql.DB {
 // 			updated_at DATETIME NOT NULL
 // 		);
 
-
-// 		CREATE TABLE IF NOT EXISTS works (
-// 			id STRING PRIMARY KEY,
-// 			task_id STRING,
-// 			status_init TEXT NOT NULL,
-// 			status_end TEXT,
-// 			created_at DATETIME NOT NULL,
-// 			updated_at DATETIME NOT NULL
-// 			finished_at DATETIME
-// 		);
+		// CREATE TABLE IF NOT EXISTS works (
+		// 	id STRING PRIMARY KEY,
+		// 	task_id STRING,
+		// 	status_init TEXT NOT NULL,
+		// 	status_end TEXT,
+		// 	created_at DATETIME NOT NULL,
+		// 	updated_at DATETIME NOT NULL
+		// 	finished_at DATETIME,
+		// FOREIGN KEY(task_id) REFERENCES tasks(id)
+		// );
