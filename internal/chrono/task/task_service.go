@@ -3,8 +3,6 @@ package task
 import (
 	"fmt"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type service struct {
@@ -38,14 +36,13 @@ func (s *service) CreateTask(name, description string) error {
 		return fmt.Errorf("pending task \"%s\" already exists", name)
 	}
 
-	task.ID = uuid.New().String()
 	task.Name = name
 	task.Description = description
 	task.Status = PENDING
 	task.CreatedAt = time.Now()
 	task.UpdatedAt = time.Now()
 
-	err = s.Repository.CreateTask(task)
+	err = s.Repository.CreateTask(&task)
 	if err != nil {
 		return fmt.Errorf("error creating task: \"%v\"", err)
 	}

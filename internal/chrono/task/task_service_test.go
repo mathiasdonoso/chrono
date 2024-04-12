@@ -7,9 +7,9 @@ import (
 
 type MockRepository interface {
 	CreateTask(task *Task) error
-	FindTaskById(id string) (*Task, error)
-	FindTaskByPartialId(partialId string, filter Filter) (*Task, error)
-	FindPendingTaskByName(name string, filter Filter) (*Task, error)
+	FindTaskById(id string) (Task, error)
+	FindTaskByPartialId(partialId string, filter Filter) (Task, error)
+	FindPendingTaskByName(name string, filter Filter) (Task, error)
 	ListTasksByStatus(statuses ...Status) ([]Task, error)
 	RemoveTaskById(id string) error
 }
@@ -21,13 +21,13 @@ type mockTaskRepository struct {
 
 // FindTaskById implements Repository.
 // Subtle: this method shadows the method (MockRepository).FindTaskById of mockTaskRepository.MockRepository.
-func (r mockTaskRepository) FindTaskById(id string) (*Task, error) {
-	return &Task{}, nil
+func (r mockTaskRepository) FindTaskById(id string) (Task, error) {
+	return Task{}, nil
 }
 
 // FindTaskByPartialId implements Repository.
-func (r mockTaskRepository) FindTaskByPartialId(partialId string, filter Filter) (*Task, error) {
-	return &Task{}, nil
+func (r mockTaskRepository) FindTaskByPartialId(partialId string, filter Filter) (Task, error) {
+	return Task{}, nil
 }
 
 // RemoveTaskById implements Repository.
@@ -40,8 +40,8 @@ func (r mockTaskRepository) CreateTask(task *Task) error {
 	return nil
 }
 
-func (r mockTaskRepository) FindPendingTaskByName(name string, filter Filter) (*Task, error) {
-	return &Task{}, nil
+func (r mockTaskRepository) FindPendingTaskByName(name string, filter Filter) (Task, error) {
+	return Task{}, nil
 }
 
 func (r mockTaskRepository) ListTasksByStatus(statuses ...Status) ([]Task, error) {
@@ -77,13 +77,13 @@ func (r mockTaskFindDataRepository) CreateTask(task *Task) error {
 
 // FindTaskById implements Repository.
 // Subtle: this method shadows the method (MockRepository).FindTaskById of mockTaskFindDataRepository.MockRepository.
-func (r mockTaskFindDataRepository) FindTaskById(id string) (*Task, error) {
-	return &Task{}, nil
+func (r mockTaskFindDataRepository) FindTaskById(id string) (Task, error) {
+	return Task{}, nil
 }
 
 // FindTaskByPartialId implements Repository.
-func (r mockTaskFindDataRepository) FindTaskByPartialId(partialId string, filter Filter) (*Task, error) {
-	return &Task{}, nil
+func (r mockTaskFindDataRepository) FindTaskByPartialId(partialId string, filter Filter) (Task, error) {
+	return Task{}, nil
 }
 
 // ListTasksByStatus implements Repository.
@@ -97,8 +97,8 @@ func (r mockTaskFindDataRepository) RemoveTaskById(id string) error {
 	return nil
 }
 
-func (r mockTaskFindDataRepository) FindPendingTaskByName(name string, filter Filter) (*Task, error) {
-	return &Task{
+func (r mockTaskFindDataRepository) FindPendingTaskByName(name string, filter Filter) (Task, error) {
+	return Task{
 		ID:          "1",
 		Name:        name,
 		Description: "Description 1",
