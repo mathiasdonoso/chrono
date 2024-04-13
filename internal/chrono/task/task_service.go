@@ -68,6 +68,22 @@ func (s *service) RemoveTaskByPartialId(partialId string) error {
 }
 
 func (s *service) StartTask(idOrName string) error {
+	curr, err := s.TaskRepository.ListTasksByStatus(IN_PROGRESS)
+	if err != nil {
+		return fmt.Errorf("error consulting the database: %v", err)
+	}
+
+	if len(curr) > 0 {
+		if len(curr) > 1 {
+			return fmt.Errorf("More than 1 task with status \"in_progress\". Please delete or update duplicated.")
+		} else {
+			curr[0].Status = PAUSED
+			err = s.TaskRepository.UpdateTask(&curr[0]); if err != nil {
+				return fmt.Errorf("error updating task: %v", err)
+			}
+		}
+	}
+
 	task, err := s.TaskRepository.FindByIdOrCreate(idOrName, Filter{
 		Statuses: []Status{PENDING, IN_PROGRESS, PAUSED},
 	})
@@ -75,19 +91,15 @@ func (s *service) StartTask(idOrName string) error {
 		fmt.Errorf("error consulting the database: %v", err)
 	}
 
-	// progress := progress.Progress{}
-	// progress.TaskID = task.ID
-	// progress.StatusInit = string(task.Status)
+	progress := progress.Progress{}
+	progress.TaskID = task.ID
+	progress.StatusInit = string(task.Status)
 
-	// err = s.ProgressRepository.AddProgress(&progress)
-	// fmt.Println("2", progress)
-	// if err != nil {
-	// 	fmt.Errorf("error creating progress: %v", err)
-	// }
+	err = s.ProgressRepository.AddProgress(&progress)
+	if err != nil {
+		fmt.Errorf("error creating progress: %v", err)
+	}
 
-	fmt.Println("status is", task.Status)
-
-	// FIX: This is not updating the task status
 	if task.Status != IN_PROGRESS {
 		task.Status = IN_PROGRESS
 		err = s.TaskRepository.UpdateTask(&task); if err != nil {

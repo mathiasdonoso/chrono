@@ -46,9 +46,9 @@ func (d *Database) GetDB() *sql.DB {
 // 			updated_at DATETIME NOT NULL
 // 		);
 
-		// CREATE TABLE IF NOT EXISTS works (
+		// CREATE TABLE IF NOT EXISTS progress (
 		// 	id STRING PRIMARY KEY,
-		// 	task_id STRING,
+		// 	task_id STRING NOT NULL,
 		// 	status_init TEXT NOT NULL,
 		// 	status_end TEXT,
 		// 	created_at DATETIME NOT NULL,

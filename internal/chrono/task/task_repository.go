@@ -96,15 +96,13 @@ func (r *repository) FindTaskByPartialId(partialId string, filter Filter) (Task,
 func (r *repository) UpdateTask(task *Task) error {
 	task.UpdatedAt = time.Now()
 
-	fmt.Println(task)
-
-	query := "UPDATE tasks SET name = $2, status = $3, updated_at = $4 WHERE id = $1;"
+	query := "UPDATE tasks SET name = ?, status = ?, updated_at = ? WHERE id = ?;"
 	_, err := r.db.Exec(
 		query,
-		task.ID,
 		task.Name,
 		task.Status,
 		task.UpdatedAt,
+		task.ID,
 	)
 	if err != nil {
 		return err
