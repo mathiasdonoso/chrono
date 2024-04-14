@@ -26,7 +26,7 @@ func (r *repository) ListTasksByStatus(statuses ...Status) ([]Task, error) {
 		s[i] = fmt.Sprintf("'%s'", v)
 	}
 
-	query := "SELECT id, name, description, status, created_at, updated_at FROM tasks WHERE status IN (" + strings.Join(s, ",") + ");"
+	query := "SELECT id, name, status, created_at, updated_at FROM tasks WHERE status IN (" + strings.Join(s, ",") + ");"
 
 	rows, err := r.db.Query(query)
 	if err != nil {
@@ -40,7 +40,6 @@ func (r *repository) ListTasksByStatus(statuses ...Status) ([]Task, error) {
 		if err := rows.Scan(
 			&task.ID,
 			&task.Name,
-			&task.Description,
 			&task.Status,
 			&task.CreatedAt,
 			&task.UpdatedAt,
@@ -60,7 +59,7 @@ func (r *repository) ListTasksByStatus(statuses ...Status) ([]Task, error) {
 func (r *repository) FindTaskByPartialId(partialId string, filter Filter) (Task, error) {
 	task := Task{}
 
-	query := "SELECT id, name, description, status, created_at, updated_at FROM tasks WHERE id LIKE $1"
+	query := "SELECT id, name, status, created_at, updated_at FROM tasks WHERE id LIKE $1"
 
 	if len(filter.Statuses) > 0 {
 		s := make([]string, len(filter.Statuses))
@@ -75,7 +74,6 @@ func (r *repository) FindTaskByPartialId(partialId string, filter Filter) (Task,
 	err := r.db.QueryRow(query, partialId+"%").Scan(
 		&task.ID,
 		&task.Name,
-		&task.Description,
 		&task.Status,
 		&task.CreatedAt,
 		&task.UpdatedAt,
@@ -95,11 +93,10 @@ func (r *repository) FindTaskByPartialId(partialId string, filter Filter) (Task,
 func (r *repository) FindTaskById(id string) (Task, error) {
 	task := Task{}
 
-	query := "SELECT id, name, description, status, created_at, updated_at FROM tasks WHERE id = $1;"
+	query := "SELECT id, name, status, created_at, updated_at FROM tasks WHERE id = $1;"
 	err := r.db.QueryRow(query, id).Scan(
 		&task.ID,
 		&task.Name,
-		&task.Description,
 		&task.Status,
 		&task.CreatedAt,
 		&task.UpdatedAt,
@@ -119,7 +116,7 @@ func (r *repository) FindTaskById(id string) (Task, error) {
 func (r *repository) FindPendingTaskByName(name string, filter Filter) (Task, error) {
 	task := Task{}
 
-	query := "SELECT id, name, description, status, created_at, updated_at FROM tasks WHERE name = $1"
+	query := "SELECT id, name, status, created_at, updated_at FROM tasks WHERE name = $1"
 
 	if len(filter.Statuses) > 0 {
 		s := make([]string, len(filter.Statuses))
@@ -134,7 +131,6 @@ func (r *repository) FindPendingTaskByName(name string, filter Filter) (Task, er
 	err := r.db.QueryRow(query, name).Scan(
 		&task.ID,
 		&task.Name,
-		&task.Description,
 		&task.Status,
 		&task.CreatedAt,
 		&task.UpdatedAt,
@@ -153,12 +149,11 @@ func (r *repository) FindPendingTaskByName(name string, filter Filter) (Task, er
 
 func (r *repository) CreateTask(task *Task) error {
 	task.ID = uuid.New().String()
-	query := "INSERT INTO tasks (id, name, description, status, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6);"
+	query := "INSERT INTO tasks (id, name, status, created_at, updated_at) VALUES ($1, $2, $3, $4, $5);"
 	_, err := r.db.Exec(
 		query,
 		task.ID,
 		task.Name,
-		task.Description,
 		task.Status,
 		task.CreatedAt,
 		task.UpdatedAt,

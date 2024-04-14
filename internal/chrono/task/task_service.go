@@ -22,7 +22,7 @@ func (s *service) ListTasksByStatus(statuses ...Status) ([]Task, error) {
 	return tasks, nil
 }
 
-func (s *service) CreateTask(name, description string) error {
+func (s *service) CreateTask(name string) error {
 	task, err := s.Repository.FindPendingTaskByName(name, Filter{
 		Statuses: []Status{PENDING, IN_PROGRESS, PAUSED},
 	})
@@ -37,7 +37,6 @@ func (s *service) CreateTask(name, description string) error {
 	}
 
 	task.Name = name
-	task.Description = description
 	task.Status = PENDING
 	task.CreatedAt = time.Now()
 	task.UpdatedAt = time.Now()

@@ -15,7 +15,6 @@ const (
 type Task struct {
 	ID string `json:"id"`
 	Name string `json:"name"`
-	Description string `json:"description"`
 	Status Status `json:"status"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -38,7 +37,7 @@ type Repository interface {
 
 type Service interface {
 	// CreateTask creates a new task if one with the same name and status "pending" does not exists already.
-	CreateTask(name, description string) error
+	CreateTask(name string) error
 	// ListTasks returns tasks filtering by statuses.
 	ListTasksByStatus(statuses ...Status) ([]Task, error)
 	// RemoveTaskByPartialId removes a task by partial id.
