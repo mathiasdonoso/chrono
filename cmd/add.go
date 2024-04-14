@@ -18,7 +18,6 @@ var addCmd = &cobra.Command{
 	Long: `Creates a new task if one with the same name does not exists already.
 The new task will have the following properties:
 - Name: The name of the task
-- Description (optional): A brief description of the task
 - Status: The status of the task (default: pending)
 - CreatedAt: The date and time the task was created
 - UpdatedAt: The date and time the task was last updated
@@ -27,7 +26,6 @@ The new task will have the following properties:
 	Version: "0.0.1",
 	Run: func(cmd *cobra.Command, args []string) {
 		name := args[0]
-		description, _ := cmd.Flags().GetString("description")
 
 		dbConn, err := db.Connect()
 		defer dbConn.Close()
@@ -40,7 +38,7 @@ The new task will have the following properties:
 		taskService := task.NewService(taskRepo)
 		taskHandler := task.NewHandler(taskService)
 
-		res, err := taskHandler.CreateTask(name, description)
+		res, err := taskHandler.CreateTask(name)
 		if err != nil {
 			fmt.Println("Error adding task:", err)
 			return
@@ -52,9 +50,5 @@ The new task will have the following properties:
 
 func init() {
 	rootCmd.AddCommand(addCmd)
-
-	// TODO: Add [name] argument as required (not flag) in --help section
-
-	addCmd.Flags().StringP("description", "d", "", "A brief description of the task") 
 }
 

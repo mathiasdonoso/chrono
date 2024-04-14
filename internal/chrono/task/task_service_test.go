@@ -49,7 +49,6 @@ func (r mockTaskRepository) ListTasksByStatus(statuses ...Status) ([]Task, error
 		{
 			ID:          "1",
 			Name:        "Task 1",
-			Description: "Description 1",
 			Status:      PENDING,
 			CreatedAt:   time.Time{},
 			UpdatedAt:   time.Time{},
@@ -57,7 +56,6 @@ func (r mockTaskRepository) ListTasksByStatus(statuses ...Status) ([]Task, error
 		{
 			ID:          "2",
 			Name:        "Task 2",
-			Description: "Description 2",
 			Status:      PENDING,
 			CreatedAt:   time.Time{},
 			UpdatedAt:   time.Time{},
@@ -101,7 +99,6 @@ func (r mockTaskFindDataRepository) FindPendingTaskByName(name string, filter Fi
 	return Task{
 		ID:          "1",
 		Name:        name,
-		Description: "Description 1",
 		Status:      PENDING,
 		CreatedAt:   time.Time{},
 		UpdatedAt:   time.Time{},
@@ -114,9 +111,8 @@ func TestCreateTaskShouldCreateNewTask(t *testing.T) {
 	s := NewService(r)
 
 	name := "Task 1"
-	description := "Description 1"
 
-	err := s.CreateTask(name, description)
+	err := s.CreateTask(name)
 
 	if err != nil {
 		t.Errorf("error was not expected while creating task: %s", err)
@@ -134,9 +130,8 @@ func TestCreateTaskShouldNotCreateTaskWhenTaskExists(t *testing.T) {
 	s := NewService(r)
 
 	name := "Task 1"
-	description := "Description 1"
 
-	err := s.CreateTask(name, description)
+	err := s.CreateTask(name)
 
 	if err == nil {
 		t.Errorf("expected error while creating task")

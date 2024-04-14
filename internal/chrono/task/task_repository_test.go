@@ -23,7 +23,6 @@ func TestCreateTaskShouldInsertNewRowInDB(t *testing.T) {
 	task := Task{
 		ID:          "1",
 		Name:        "Task 1",
-		Description: "Description 1",
 		Status:      PENDING,
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
@@ -46,10 +45,10 @@ func TestFindPendingTaskByNameShouldFindTask(t *testing.T) {
 	}
 	defer db.Close()
 
-	rows := sqlmock.NewRows([]string{"id", "name", "description", "status", "created_at", "updated_at"}).
-		AddRow("1", "Task 1", "Description 1", PENDING, time.Now(), time.Now())
+	rows := sqlmock.NewRows([]string{"id", "name", "status", "created_at", "updated_at"}).
+		AddRow("1", "Task 1", PENDING, time.Now(), time.Now())
 
-	query := regexp.QuoteMeta("SELECT id, name, description, status, created_at, updated_at FROM tasks WHERE name = $1 AND status IN ('pending');")
+	query := regexp.QuoteMeta("SELECT id, name, status, created_at, updated_at FROM tasks WHERE name = $1 AND status IN ('pending');")
 
 	mock.ExpectQuery(query).WithArgs("Task 1").WillReturnRows(rows)
 
@@ -76,10 +75,10 @@ func TestFindPendingTaskByNameShouldNotFindTaskWhenStatusIsNotPending(t *testing
 	}
 	defer db.Close()
 
-	sqlmock.NewRows([]string{"id", "name", "description", "status", "created_at", "updated_at"}).
-		AddRow("1", "Task 1", "Description 1", DONE, time.Now(), time.Now())
+	sqlmock.NewRows([]string{"id", "name", "status", "created_at", "updated_at"}).
+		AddRow("1", "Task 1", DONE, time.Now(), time.Now())
 
-	query := regexp.QuoteMeta("SELECT id, name, description, status, created_at, updated_at FROM tasks WHERE name = $1 AND status IN ('pending');")
+	query := regexp.QuoteMeta("SELECT id, name, status, created_at, updated_at FROM tasks WHERE name = $1 AND status IN ('pending');")
 
 	mock.ExpectQuery(query).WithArgs("Task 1").WillReturnError(sql.ErrNoRows)
 
@@ -106,10 +105,10 @@ func TestFindPendingTaskByNameShouldNotFindTaskWhenNameDoesNotMatch(t *testing.T
 	}
 	defer db.Close()
 
-	sqlmock.NewRows([]string{"id", "name", "description", "status", "created_at", "updated_at"}).
-		AddRow("1", "Task 2", "Description 1", PENDING, time.Now(), time.Now())
+	sqlmock.NewRows([]string{"id", "name", "status", "created_at", "updated_at"}).
+		AddRow("1", "Task 2", PENDING, time.Now(), time.Now())
 
-	query := regexp.QuoteMeta("SELECT id, name, description, status, created_at, updated_at FROM tasks WHERE name = $1 AND status IN ('pending');")
+	query := regexp.QuoteMeta("SELECT id, name, status, created_at, updated_at FROM tasks WHERE name = $1 AND status IN ('pending');")
 
 	mock.ExpectQuery(query).WithArgs("Task 1").WillReturnError(sql.ErrNoRows)
 

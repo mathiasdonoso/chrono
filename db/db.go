@@ -13,7 +13,9 @@ type Database struct {
 
 func Connect() (*Database, error) {
 	path := "./chrono.db"
+	newDB := false
 	if _, err := os.Stat(path); err != nil {
+		newDB = true
 		file, err := os.Create(path)
 		defer file.Close()
 		if err != nil {
@@ -26,7 +28,15 @@ func Connect() (*Database, error) {
 		return nil, err
 	}
 
-	return &Database{db: db}, nil
+	d := &Database{db: db}
+	if newDB {
+		err = d.BuildSchema()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return d, nil
 }
 
 func (d *Database) Close() error {
@@ -37,22 +47,35 @@ func (d *Database) GetDB() *sql.DB {
 	return d.db
 }
 
-// 		CREATE TABLE IF NOT EXISTS tasks (
-// 			id STRING PRIMARY KEY,
-// 			name TEXT NOT NULL,
-// 			description TEXT DEFAULT "" NOT NULL,
-// 			status TEXT DEFAULT "pending" NOT NULL,
-// 			created_at DATETIME NOT NULL,
-// 			updated_at DATETIME NOT NULL
-// 		);
+func (d *Database) BuildSchema() error {
+	_, err := d.db.Exec(`
+		CREATE TABLE IF NOT EXISTS tasks (
+			id STRING PRIMARY KEY,
+			name TEXT NOT NULL,
+			status TEXT DEFAULT "pending" NOT NULL,
+			created_at DATETIME NOT NULL,
+			updated_at DATETIME NOT NULL
+		);
+	`)
+	if err != nil {
+		return err
+	}
 
+	_, err = d.db.Exec(`
+		CREATE TABLE IF NOT EXISTS works (
+			id STRING PRIMARY KEY,
+			task_id STRING,
+			status_init TEXT NOT NULL,
+			status_end TEXT,
+			created_at DATETIME NOT NULL,
+			updated_at DATETIME NOT NULL,
+			finished_at DATETIME
+		);
+	`)
+	if err != nil {
+		return err
+	}
 
-// 		CREATE TABLE IF NOT EXISTS works (
-// 			id STRING PRIMARY KEY,
-// 			task_id STRING,
-// 			status_init TEXT NOT NULL,
-// 			status_end TEXT,
-// 			created_at DATETIME NOT NULL,
-// 			updated_at DATETIME NOT NULL
-// 			finished_at DATETIME
-// 		);
+	return nil
+}
+
