@@ -29,6 +29,8 @@ func (s *service) ListTasksByStatus(statuses ...Status) ([]Task, error) {
 
 func (s *service) CreateTask(name, description string) error {
 	task, err := s.TaskRepository.FindPendingTaskByName(name, Filter{
+func (s *service) CreateTask(name string) error {
+	task, err := s.Repository.FindPendingTaskByName(name, Filter{
 		Statuses: []Status{PENDING, IN_PROGRESS, PAUSED},
 	})
 	if err != nil {
@@ -42,6 +44,9 @@ func (s *service) CreateTask(name, description string) error {
 	}
 
 	task.Name = name
+	task.Status = PENDING
+	task.CreatedAt = time.Now()
+	task.UpdatedAt = time.Now()
 
 	err = s.TaskRepository.CreateTask(&task); if err != nil {
 		return fmt.Errorf("error creating task: \"%v\"", err)

@@ -23,7 +23,6 @@ var lsCmd = &cobra.Command{
 showing the following information:
 - ID: The unique identifier of the task
 - Name: The name of the task
-- Description (optional): A brief description of the task
 - Status: The status of the task (default: pending)
 - CreatedAt: The date and time the task was created
 - UpdatedAt: The date and time the task was last updated

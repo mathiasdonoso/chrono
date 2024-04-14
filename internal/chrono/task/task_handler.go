@@ -8,8 +8,8 @@ func NewHandler(service Service) *Handler {
     return &Handler{service}
 }
 
-func (h *Handler) CreateTask(name, description string) (string, error) {
-    err := h.Service.CreateTask(name, description)
+func (h *Handler) CreateTask(name string) (string, error) {
+    err := h.Service.CreateTask(name)
     if err != nil {
         return "", err
     }
