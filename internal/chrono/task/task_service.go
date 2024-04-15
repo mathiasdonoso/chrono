@@ -27,10 +27,8 @@ func (s *service) ListTasksByStatus(statuses ...Status) ([]Task, error) {
 	return tasks, nil
 }
 
-func (s *service) CreateTask(name, description string) error {
-	task, err := s.TaskRepository.FindPendingTaskByName(name, Filter{
 func (s *service) CreateTask(name string) error {
-	task, err := s.Repository.FindPendingTaskByName(name, Filter{
+	task, err := s.TaskRepository.FindPendingTaskByName(name, Filter{
 		Statuses: []Status{PENDING, IN_PROGRESS, PAUSED},
 	})
 	if err != nil {
@@ -45,8 +43,6 @@ func (s *service) CreateTask(name string) error {
 
 	task.Name = name
 	task.Status = PENDING
-	task.CreatedAt = time.Now()
-	task.UpdatedAt = time.Now()
 
 	err = s.TaskRepository.CreateTask(&task); if err != nil {
 		return fmt.Errorf("error creating task: \"%v\"", err)
@@ -93,7 +89,7 @@ func (s *service) StartTask(idOrName string) error {
 		Statuses: []Status{PENDING, IN_PROGRESS, PAUSED},
 	})
 	if err != nil {
-		fmt.Errorf("error consulting the database: %v", err)
+		return fmt.Errorf("error consulting the database: %v", err)
 	}
 
 	progress := progress.Progress{}
@@ -102,7 +98,7 @@ func (s *service) StartTask(idOrName string) error {
 
 	err = s.ProgressRepository.AddProgress(&progress)
 	if err != nil {
-		fmt.Errorf("error creating progress: %v", err)
+		return fmt.Errorf("error creating progress: %v", err)
 	}
 
 	if task.Status != IN_PROGRESS {

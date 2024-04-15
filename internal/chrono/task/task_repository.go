@@ -112,22 +112,24 @@ func (r *repository) UpdateTask(task *Task) error {
 func (r *repository) FindByIdOrCreate(idOrName string, filter Filter) (Task, error) {
 	task := Task{}
 
-	query := "SELECT id, name, description, status, created_at, updated_at FROM tasks WHERE id LIKE $1"
+	fq := ""
 
 	if len(filter.Statuses) > 0 {
 		s := make([]string, len(filter.Statuses))
 		for i, v := range filter.Statuses {
 			s[i] = fmt.Sprintf("'%s'", v)
 		}
-		query += " AND status IN (" + strings.Join(s, ",") + ")"
+		fq += " AND status IN (" + strings.Join(s, ",") + ")"
 	}
 
-	query += ";"
+	query := fmt.Sprintf(
+		"SELECT id, name, status, created_at, updated_at FROM tasks WHERE id LIKE $1 %s;",
+		fq,
+	)
 
 	err := r.db.QueryRow(query, idOrName+"%").Scan(
 		&task.ID,
 		&task.Name,
-		&task.Description,
 		&task.Status,
 		&task.CreatedAt,
 		&task.UpdatedAt,
@@ -212,14 +214,12 @@ func (r *repository) FindPendingTaskByName(name string, filter Filter) (Task, er
 
 func (r *repository) CreateTask(task *Task) error {
 	task.ID = uuid.New().String()
-	task.Description = ""
 	if task.Status == "" {
 		task.Status = PENDING
 	}
 	task.CreatedAt = time.Now()
 	task.UpdatedAt = time.Now()
 
-	query := "INSERT INTO tasks (id, name, description, status, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6);"
 	query := "INSERT INTO tasks (id, name, status, created_at, updated_at) VALUES ($1, $2, $3, $4, $5);"
 	_, err := r.db.Exec(
 		query,

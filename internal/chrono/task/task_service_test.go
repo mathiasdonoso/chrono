@@ -3,6 +3,8 @@ package task
 import (
 	"testing"
 	"time"
+
+	"github.com/mathiasdonoso/chrono/internal/chrono/progress"
 )
 
 type MockRepository interface {
@@ -12,6 +14,16 @@ type MockRepository interface {
 	FindPendingTaskByName(name string, filter Filter) (Task, error)
 	ListTasksByStatus(statuses ...Status) ([]Task, error)
 	RemoveTaskById(id string) error
+	FindByIdOrCreate(idOrName string, filter Filter) (Task, error)
+	UpdateTask(task *Task) error
+}
+
+type mockProgressRepository struct {
+	MockRepository
+}
+
+func (r mockProgressRepository) AddProgress(progress *progress.Progress) error {
+	return nil
 }
 
 type mockTaskRepository struct {
@@ -23,6 +35,14 @@ type mockTaskRepository struct {
 // Subtle: this method shadows the method (MockRepository).FindTaskById of mockTaskRepository.MockRepository.
 func (r mockTaskRepository) FindTaskById(id string) (Task, error) {
 	return Task{}, nil
+}
+
+func (r mockTaskRepository) FindByIdOrCreate(idOrName string, filter Filter) (Task, error) {
+	return Task{}, nil
+}
+
+func (r mockTaskRepository) UpdateTask(task *Task) error {
+	return nil
 }
 
 // FindTaskByPartialId implements Repository.
@@ -47,18 +67,18 @@ func (r mockTaskRepository) FindPendingTaskByName(name string, filter Filter) (T
 func (r mockTaskRepository) ListTasksByStatus(statuses ...Status) ([]Task, error) {
 	return []Task{
 		{
-			ID:          "1",
-			Name:        "Task 1",
-			Status:      PENDING,
-			CreatedAt:   time.Time{},
-			UpdatedAt:   time.Time{},
+			ID:        "1",
+			Name:      "Task 1",
+			Status:    PENDING,
+			CreatedAt: time.Time{},
+			UpdatedAt: time.Time{},
 		},
 		{
-			ID:          "2",
-			Name:        "Task 2",
-			Status:      PENDING,
-			CreatedAt:   time.Time{},
-			UpdatedAt:   time.Time{},
+			ID:        "2",
+			Name:      "Task 2",
+			Status:    PENDING,
+			CreatedAt: time.Time{},
+			UpdatedAt: time.Time{},
 		},
 	}, nil
 }
@@ -97,18 +117,19 @@ func (r mockTaskFindDataRepository) RemoveTaskById(id string) error {
 
 func (r mockTaskFindDataRepository) FindPendingTaskByName(name string, filter Filter) (Task, error) {
 	return Task{
-		ID:          "1",
-		Name:        name,
-		Status:      PENDING,
-		CreatedAt:   time.Time{},
-		UpdatedAt:   time.Time{},
+		ID:        "1",
+		Name:      name,
+		Status:    PENDING,
+		CreatedAt: time.Time{},
+		UpdatedAt: time.Time{},
 	}, nil
 }
 
-func TestCreateTaskShouldCreateNewTask(t *testing.T) {
+func TestCreateTaskShouldCreateNewTaskWithStatusPending(t *testing.T) {
 	r := mockTaskRepository{}
+	p := mockProgressRepository{}
 	r.taskCreated = &Task{}
-	s := NewService(r)
+	s := NewService(r, p)
 
 	name := "Task 1"
 
@@ -127,7 +148,8 @@ func TestCreateTaskShouldCreateNewTask(t *testing.T) {
 
 func TestCreateTaskShouldNotCreateTaskWhenTaskExists(t *testing.T) {
 	r := mockTaskFindDataRepository{}
-	s := NewService(r)
+	p := mockProgressRepository{}
+	s := NewService(r, p)
 
 	name := "Task 1"
 
@@ -140,7 +162,8 @@ func TestCreateTaskShouldNotCreateTaskWhenTaskExists(t *testing.T) {
 
 func TestListTasksByStatusShouldReturnTasks(t *testing.T) {
 	r := mockTaskRepository{}
-	s := NewService(r)
+	p := mockProgressRepository{}
+	s := NewService(r, p)
 
 	statuses := []Status{PENDING}
 
