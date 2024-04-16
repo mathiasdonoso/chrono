@@ -82,6 +82,12 @@ func (s *service) StartTask(idOrName string) error {
 			err = s.TaskRepository.UpdateTask(&curr[0]); if err != nil {
 				return fmt.Errorf("error updating task: %v", err)
 			}
+
+			progress := s.ProgressRepository.GetLastProgressByTaskID(curr[0].ID)
+			progress.Status = string(DONE)
+			err = s.ProgressRepository.UpdateProgress(&progress); if err != nil {
+				return fmt.Errorf("error updating progress: %v", err)
+			}
 		}
 	}
 
@@ -94,7 +100,7 @@ func (s *service) StartTask(idOrName string) error {
 
 	progress := progress.Progress{}
 	progress.TaskID = task.ID
-	progress.StatusInit = string(task.Status)
+	progress.Status = string(IN_PROGRESS)
 
 	err = s.ProgressRepository.AddProgress(&progress)
 	if err != nil {

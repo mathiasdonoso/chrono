@@ -62,11 +62,10 @@ func (d *Database) BuildSchema() error {
 	}
 
 	_, err = d.db.Exec(`
-		CREATE TABLE IF NOT EXISTS works (
+		CREATE TABLE IF NOT EXISTS progress (
 			id STRING PRIMARY KEY,
 			task_id STRING,
-			status_init TEXT NOT NULL,
-			status_end TEXT,
+			status TEXT DEFAULT "in_progress" NOT NULL,
 			created_at DATETIME NOT NULL,
 			updated_at DATETIME NOT NULL,
 			finished_at DATETIME
