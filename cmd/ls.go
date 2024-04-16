@@ -10,6 +10,7 @@ import (
 	"text/tabwriter"
 
 	"github.com/mathiasdonoso/chrono/db"
+	"github.com/mathiasdonoso/chrono/internal/chrono/progress"
 	"github.com/mathiasdonoso/chrono/internal/chrono/task"
 	"github.com/spf13/cobra"
 )
@@ -42,7 +43,8 @@ showing the following information:
 			fmt.Println("Error connecting to db:", err)
 		}
 		taskRepo := task.NewRepository(dbConn.GetDB())
-		taskService := task.NewService(taskRepo)
+		progressRepo := progress.NewRepository(dbConn.GetDB())
+		taskService := task.NewService(taskRepo, progressRepo)
 		taskHandler := task.NewHandler(taskService)
 
 		res, err := taskHandler.ListTasksByStatus(statuses...)

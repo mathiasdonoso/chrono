@@ -12,21 +12,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// addCmd represents the add command
-var addCmd = &cobra.Command{
-	Use:   "add",
-	Short: "Creates a new task",
-	Long: `Creates a new task if one with the same name does not exists already.
-The new task will have the following properties:
-- Name: The name of the task
-- Status: The status of the task (default: pending)
-- CreatedAt: The date and time the task was created
-- UpdatedAt: The date and time the task was last updated
-`,
-	Args: cobra.ExactArgs(1),
+// startCmd represents the start command
+var startCmd = &cobra.Command{
+	Use:   "start",
+	Short: "Start to record activity on a specific task.",
+	Long: `Start recording progress on a specific task. Creates the task if not exists.`,
 	Version: "0.0.1",
+	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		name := args[0]
+		idOrName := args[0]
 
 		dbConn, err := db.Connect()
 		defer dbConn.Close()
@@ -40,9 +34,10 @@ The new task will have the following properties:
 		taskService := task.NewService(taskRepo, progressRepo)
 		taskHandler := task.NewHandler(taskService)
 
-		res, err := taskHandler.CreateTask(name)
+		res, err := taskHandler.StartTask(idOrName)
+
 		if err != nil {
-			fmt.Println("Error adding task:", err)
+			fmt.Println("Error starting task:", err)
 			return
 		}
 
@@ -51,6 +46,5 @@ The new task will have the following properties:
 }
 
 func init() {
-	rootCmd.AddCommand(addCmd)
+	rootCmd.AddCommand(startCmd)
 }
-

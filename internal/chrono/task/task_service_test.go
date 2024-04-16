@@ -3,6 +3,8 @@ package task
 import (
 	"testing"
 	"time"
+
+	"github.com/mathiasdonoso/chrono/internal/chrono/progress"
 )
 
 type MockRepository interface {
@@ -12,6 +14,16 @@ type MockRepository interface {
 	FindPendingTaskByName(name string, filter Filter) (Task, error)
 	ListTasksByStatus(statuses ...Status) ([]Task, error)
 	RemoveTaskById(id string) error
+	FindByIdOrCreate(idOrName string, filter Filter) (Task, error)
+	UpdateTask(task *Task) error
+}
+
+type mockProgressRepository struct {
+	MockRepository
+}
+
+func (r mockProgressRepository) AddProgress(progress *progress.Progress) error {
+	return nil
 }
 
 type mockTaskRepository struct {
@@ -19,18 +31,22 @@ type mockTaskRepository struct {
 	MockRepository
 }
 
-// FindTaskById implements Repository.
-// Subtle: this method shadows the method (MockRepository).FindTaskById of mockTaskRepository.MockRepository.
 func (r mockTaskRepository) FindTaskById(id string) (Task, error) {
 	return Task{}, nil
 }
 
-// FindTaskByPartialId implements Repository.
+func (r mockTaskRepository) FindByIdOrCreate(idOrName string, filter Filter) (Task, error) {
+	return Task{}, nil
+}
+
+func (r mockTaskRepository) UpdateTask(task *Task) error {
+	return nil
+}
+
 func (r mockTaskRepository) FindTaskByPartialId(partialId string, filter Filter) (Task, error) {
 	return Task{}, nil
 }
 
-// RemoveTaskById implements Repository.
 func (r mockTaskRepository) RemoveTaskById(id string) error {
 	return nil
 }
@@ -47,18 +63,18 @@ func (r mockTaskRepository) FindPendingTaskByName(name string, filter Filter) (T
 func (r mockTaskRepository) ListTasksByStatus(statuses ...Status) ([]Task, error) {
 	return []Task{
 		{
-			ID:          "1",
-			Name:        "Task 1",
-			Status:      PENDING,
-			CreatedAt:   time.Time{},
-			UpdatedAt:   time.Time{},
+			ID:        "1",
+			Name:      "Task 1",
+			Status:    PENDING,
+			CreatedAt: time.Time{},
+			UpdatedAt: time.Time{},
 		},
 		{
-			ID:          "2",
-			Name:        "Task 2",
-			Status:      PENDING,
-			CreatedAt:   time.Time{},
-			UpdatedAt:   time.Time{},
+			ID:        "2",
+			Name:      "Task 2",
+			Status:    PENDING,
+			CreatedAt: time.Time{},
+			UpdatedAt: time.Time{},
 		},
 	}, nil
 }
@@ -67,48 +83,41 @@ type mockTaskFindDataRepository struct {
 	MockRepository
 }
 
-// CreateTask implements Repository.
-// Subtle: this method shadows the method (MockRepository).CreateTask of mockTaskFindDataRepository.MockRepository.
 func (r mockTaskFindDataRepository) CreateTask(task *Task) error {
 	return nil
 }
 
-// FindTaskById implements Repository.
-// Subtle: this method shadows the method (MockRepository).FindTaskById of mockTaskFindDataRepository.MockRepository.
 func (r mockTaskFindDataRepository) FindTaskById(id string) (Task, error) {
 	return Task{}, nil
 }
 
-// FindTaskByPartialId implements Repository.
 func (r mockTaskFindDataRepository) FindTaskByPartialId(partialId string, filter Filter) (Task, error) {
 	return Task{}, nil
 }
 
-// ListTasksByStatus implements Repository.
-// Subtle: this method shadows the method (MockRepository).ListTasksByStatus of mockTaskFindDataRepository.MockRepository.
 func (r mockTaskFindDataRepository) ListTasksByStatus(statuses ...Status) ([]Task, error) {
 	return []Task{}, nil
 }
 
-// RemoveTaskById implements Repository.
 func (r mockTaskFindDataRepository) RemoveTaskById(id string) error {
 	return nil
 }
 
 func (r mockTaskFindDataRepository) FindPendingTaskByName(name string, filter Filter) (Task, error) {
 	return Task{
-		ID:          "1",
-		Name:        name,
-		Status:      PENDING,
-		CreatedAt:   time.Time{},
-		UpdatedAt:   time.Time{},
+		ID:        "1",
+		Name:      name,
+		Status:    PENDING,
+		CreatedAt: time.Time{},
+		UpdatedAt: time.Time{},
 	}, nil
 }
 
-func TestCreateTaskShouldCreateNewTask(t *testing.T) {
+func TestCreateTaskShouldCreateNewTaskWithStatusPending(t *testing.T) {
 	r := mockTaskRepository{}
+	p := mockProgressRepository{}
 	r.taskCreated = &Task{}
-	s := NewService(r)
+	s := NewService(r, p)
 
 	name := "Task 1"
 
@@ -127,7 +136,8 @@ func TestCreateTaskShouldCreateNewTask(t *testing.T) {
 
 func TestCreateTaskShouldNotCreateTaskWhenTaskExists(t *testing.T) {
 	r := mockTaskFindDataRepository{}
-	s := NewService(r)
+	p := mockProgressRepository{}
+	s := NewService(r, p)
 
 	name := "Task 1"
 
@@ -140,7 +150,8 @@ func TestCreateTaskShouldNotCreateTaskWhenTaskExists(t *testing.T) {
 
 func TestListTasksByStatusShouldReturnTasks(t *testing.T) {
 	r := mockTaskRepository{}
-	s := NewService(r)
+	p := mockProgressRepository{}
+	s := NewService(r, p)
 
 	statuses := []Status{PENDING}
 

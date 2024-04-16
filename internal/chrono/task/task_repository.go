@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -16,7 +17,7 @@ type Filter struct {
 	Statuses []Status
 }
 
-func NewRepository(db *sql.DB) Repository {
+func NewRepository(db *sql.DB) TaskRepository {
 	return &repository{db: db}
 }
 
@@ -90,6 +91,70 @@ func (r *repository) FindTaskByPartialId(partialId string, filter Filter) (Task,
 	return task, nil
 }
 
+func (r *repository) UpdateTask(task *Task) error {
+	task.UpdatedAt = time.Now()
+
+	query := "UPDATE tasks SET name = ?, status = ?, updated_at = ? WHERE id = ?;"
+	_, err := r.db.Exec(
+		query,
+		task.Name,
+		task.Status,
+		task.UpdatedAt,
+		task.ID,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *repository) FindByIdOrCreate(idOrName string, filter Filter) (Task, error) {
+	task := Task{}
+
+	fq := ""
+
+	if len(filter.Statuses) > 0 {
+		s := make([]string, len(filter.Statuses))
+		for i, v := range filter.Statuses {
+			s[i] = fmt.Sprintf("'%s'", v)
+		}
+		fq += " AND status IN (" + strings.Join(s, ",") + ")"
+	}
+
+	query := fmt.Sprintf(
+		"SELECT id, name, status, created_at, updated_at FROM tasks WHERE id LIKE $1 %s;",
+		fq,
+	)
+
+	err := r.db.QueryRow(query, idOrName+"%").Scan(
+		&task.ID,
+		&task.Name,
+		&task.Status,
+		&task.CreatedAt,
+		&task.UpdatedAt,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			newTask := Task{}
+			newTask.Name = idOrName
+
+			err = r.CreateTask(&newTask)
+
+			if err != nil {
+				return Task{}, fmt.Errorf("not found")
+			}
+
+			return newTask, nil
+		} else {
+			return Task{}, fmt.Errorf("not found")
+		}
+	}
+
+	return task, nil
+}
+
 func (r *repository) FindTaskById(id string) (Task, error) {
 	task := Task{}
 
@@ -149,6 +214,12 @@ func (r *repository) FindPendingTaskByName(name string, filter Filter) (Task, er
 
 func (r *repository) CreateTask(task *Task) error {
 	task.ID = uuid.New().String()
+	if task.Status == "" {
+		task.Status = PENDING
+	}
+	task.CreatedAt = time.Now()
+	task.UpdatedAt = time.Now()
+
 	query := "INSERT INTO tasks (id, name, status, created_at, updated_at) VALUES ($1, $2, $3, $4, $5);"
 	_, err := r.db.Exec(
 		query,

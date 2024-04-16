@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/mathiasdonoso/chrono/db"
+	"github.com/mathiasdonoso/chrono/internal/chrono/progress"
 	"github.com/mathiasdonoso/chrono/internal/chrono/task"
 	"github.com/spf13/cobra"
 )
@@ -27,7 +28,8 @@ var rmCmd = &cobra.Command{
 		}
 
 		taskRepo := task.NewRepository(dbConn.GetDB())
-		taskService := task.NewService(taskRepo)
+		progressRepo := progress.NewRepository(dbConn.GetDB())
+		taskService := task.NewService(taskRepo, progressRepo)
 		taskHandler := task.NewHandler(taskService)
 
 		res, err := taskHandler.RemoveTaskByPartialId(id)
