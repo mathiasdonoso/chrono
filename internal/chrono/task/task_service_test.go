@@ -26,6 +26,14 @@ func (r mockProgressRepository) AddProgress(progress *progress.Progress) error {
 	return nil
 }
 
+func (r mockProgressRepository) GetLastProgressByTaskID(taskID string) progress.Progress {
+	return progress.Progress{}
+}
+
+func (r mockProgressRepository) UpdateProgress(progress *progress.Progress) error {
+	return nil
+}
+
 type mockTaskRepository struct {
 	taskCreated *Task
 	MockRepository
