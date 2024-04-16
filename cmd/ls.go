@@ -31,9 +31,9 @@ showing the following information:
 	Run: func(cmd *cobra.Command, args []string) {
 		all, _ := cmd.Flags().GetBool("all")
 
-		statuses := []task.Status{task.PENDING}
+		statuses := []task.Status{task.PENDING, task.IN_PROGRESS}
 		if all {
-			statuses = append(statuses, task.IN_PROGRESS, task.PAUSED)
+			statuses = append(statuses, task.IN_PROGRESS, task.PAUSED, task.DONE)
 		}
 
 		dbConn, err := db.Connect()
