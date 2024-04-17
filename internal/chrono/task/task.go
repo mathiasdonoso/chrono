@@ -48,4 +48,6 @@ type Service interface {
 	RemoveTaskByPartialId(partialId string) error
 	// StartTask starts a task by id or name.
 	StartTask(idOrName string) error
+	// FinishTask finishes a task by id.
+	FinishTask(id string) error
 }
