@@ -58,8 +58,6 @@ func (r *repository) ListTasksByStatus(statuses ...Status) ([]Task, error) {
 }
 
 func (r *repository) FindTaskByPartialId(partialId string, filter Filter) (Task, error) {
-	task := Task{}
-
 	query := "SELECT id, name, status, created_at, updated_at FROM tasks WHERE id LIKE $1"
 
 	if len(filter.Statuses) > 0 {
@@ -70,16 +68,10 @@ func (r *repository) FindTaskByPartialId(partialId string, filter Filter) (Task,
 		query += " AND status IN (" + strings.Join(s, ",") + ")"
 	}
 
-	query += ";"
+	query += " LIMIT 2;"
 
-	err := r.db.QueryRow(query, partialId+"%").Scan(
-		&task.ID,
-		&task.Name,
-		&task.Status,
-		&task.CreatedAt,
-		&task.UpdatedAt,
-	)
-
+	rows, err := r.db.Query(query, partialId+"%")
+	defer rows.Close()
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return Task{}, fmt.Errorf("not found")
@@ -88,7 +80,26 @@ func (r *repository) FindTaskByPartialId(partialId string, filter Filter) (Task,
 		return Task{}, err
 	}
 
-	return task, nil
+	result := []Task{}
+	for rows.Next() {
+		var t Task
+		if err := rows.Scan(
+			&t.ID,
+			&t.Name,
+			&t.Status,
+			&t.CreatedAt,
+			&t.UpdatedAt,
+		); err != nil {
+			return Task{}, err
+		}
+		result = append(result, t)
+	}
+
+	if len(result) > 1 {
+		return Task{}, fmt.Errorf("multiple tasks found")
+	}
+
+	return result[0], nil
 }
 
 func (r *repository) UpdateTask(task *Task) error {
