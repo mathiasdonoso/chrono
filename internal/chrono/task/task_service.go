@@ -83,9 +83,9 @@ func (s *service) StartTask(idOrName string) error {
 				return fmt.Errorf("error updating task: %v", err)
 			}
 
-			progress := s.ProgressRepository.GetLastProgressByTaskID(curr[0].ID)
-			progress.Status = string(DONE)
-			err = s.ProgressRepository.UpdateProgress(&progress); if err != nil {
+			p := s.ProgressRepository.GetLastProgressByTaskID(curr[0].ID)
+			p.Status = string(DONE)
+			err = s.ProgressRepository.UpdateProgress(&p); if err != nil {
 				return fmt.Errorf("error updating progress: %v", err)
 			}
 		}
@@ -112,6 +112,34 @@ func (s *service) StartTask(idOrName string) error {
 		err = s.TaskRepository.UpdateTask(&task); if err != nil {
 			return fmt.Errorf("error updating task: %v", err)
 		}
+	}
+
+	return nil
+}
+
+func (s *service) FinishTask(id string) error {
+	task, err := s.TaskRepository.FindTaskByPartialId(
+		id,
+		Filter{Statuses: []Status{PENDING, IN_PROGRESS, PAUSED}},
+	)
+
+	if err != nil {
+		return fmt.Errorf("error consulting the database: %v", err)
+	}
+
+	p := progress.Progress{}
+	p.TaskID = task.ID
+	p.Status = string(DONE)
+
+	err = s.ProgressRepository.AddProgress(&p)
+	if err != nil {
+		return fmt.Errorf("error creating progress: %v", err)
+	}
+
+	task.Status = DONE
+	err = s.TaskRepository.UpdateTask(&task)
+	if err != nil {
+		return fmt.Errorf("error updating task: %v", err)
 	}
 
 	return nil

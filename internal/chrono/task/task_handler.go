@@ -44,3 +44,11 @@ func (h *Handler) StartTask(idOrName string) (string, error) {
     return "Task started", nil
 }
 
+func (h *Handler) FinishTask(idOrName string) (string, error) {
+    err := h.Service.FinishTask(idOrName)
+    if err != nil {
+        return "", err
+    }
+
+    return "Task finished", nil
+}
