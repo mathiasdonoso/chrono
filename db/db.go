@@ -2,6 +2,8 @@ package db
 
 import (
 	"database/sql"
+	"errors"
+	"log"
 	"os"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -12,18 +14,28 @@ type Database struct {
 }
 
 func Connect() (*Database, error) {
-	path := "./chrono.db"
+	path := "/opt/chrono/"
+
+	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
+		err := os.Mkdir(path, os.ModePerm)
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+	}
+
+	dbPath := path + "chrono.db"
 	newDB := false
-	if _, err := os.Stat(path); err != nil {
+	if _, err := os.Stat(dbPath); err != nil {
 		newDB = true
-		file, err := os.Create(path)
+		file, err := os.Create(dbPath)
 		defer file.Close()
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	db, err := sql.Open("sqlite3", path)
+	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
 		return nil, err
 	}
