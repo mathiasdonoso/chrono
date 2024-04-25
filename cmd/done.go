@@ -14,9 +14,9 @@ import (
 
 // doneCmd represents the done command
 var doneCmd = &cobra.Command{
-	Use:   "done",
-	Short: "Finish a task by id.",
-	Long: `Finish a task by id setting the status to "done".`,
+	Use:     "done",
+	Short:   "Finish a task by id",
+	Long:    `Finish a task by id setting the status to "done".`,
 	Version: "0.0.1",
 	Run: func(cmd *cobra.Command, args []string) {
 		id := args[0]
