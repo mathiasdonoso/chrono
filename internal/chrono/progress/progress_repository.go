@@ -7,6 +7,18 @@ import (
 	"github.com/google/uuid"
 )
 
+type uuidCreator interface {
+	NewUUID() string
+}
+
+type uuidGenerator struct{}
+
+func (u *uuidGenerator) NewUUID() string {
+	return uuid.New().String()
+}
+
+var idGenerator uuidCreator
+
 type repository struct {
 	db *sql.DB
 }
@@ -35,7 +47,7 @@ func (r *repository) GetLastProgressByTaskID(taskID string) Progress {
 }
 
 func (r *repository) AddProgress(progress *Progress) error {
-	progress.ID = uuid.New().String()
+	progress.ID = idGenerator.NewUUID()
 	progress.CreatedAt = time.Now()
 	progress.UpdatedAt = time.Now()
 
@@ -57,20 +69,19 @@ func (r *repository) AddProgress(progress *Progress) error {
 }
 
 func (r *repository) UpdateProgress(progress *Progress) error {
-    progress.UpdatedAt = time.Now()
+	progress.UpdatedAt = time.Now()
 
-    query := "UPDATE progress SET status = $1, updated_at = $2 WHERE id = $3;"
+	query := "UPDATE progress SET status = $1, updated_at = $2 WHERE id = $3;"
 
-    _, err := r.db.Exec(
-        query,
-        progress.Status,
-        progress.UpdatedAt,
-        progress.ID,
-    )
-    if err != nil {
-        return err
-    }
+	_, err := r.db.Exec(
+		query,
+		progress.Status,
+		progress.UpdatedAt,
+		progress.ID,
+	)
+	if err != nil {
+		return err
+	}
 
-    return nil
+	return nil
 }
-

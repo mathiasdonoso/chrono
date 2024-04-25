@@ -9,6 +9,18 @@ import (
 	"github.com/google/uuid"
 )
 
+type uuidCreator interface {
+	NewUUID() string
+}
+
+type uuidGenerator struct{}
+
+func (u *uuidGenerator) NewUUID() string {
+	return uuid.New().String()
+}
+
+var idGenerator uuidCreator
+
 type repository struct {
 	db *sql.DB
 }
@@ -224,7 +236,7 @@ func (r *repository) FindTaskByNameAndStatus(name string, filter Filter) (Task, 
 }
 
 func (r *repository) CreateTask(task *Task) error {
-	task.ID = uuid.New().String()
+	task.ID = idGenerator.NewUUID()
 	if task.Status == "" {
 		task.Status = TODO
 	}
