@@ -5,17 +5,15 @@ import "time"
 type Status string
 
 const (
-	PENDING Status = "pending"
+	TODO        Status = "to_do"
 	IN_PROGRESS Status = "in_progress"
-	PAUSED Status = "paused"
-	DONE Status = "done"
-	CANCELED Status = "canceled"
+	DONE        Status = "done"
 )
 
 type Task struct {
-	ID string `json:"id"`
-	Name string `json:"name"`
-	Status Status `json:"status"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Status    Status    `json:"status"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -27,8 +25,8 @@ type TaskRepository interface {
 	FindTaskById(id string) (Task, error)
 	// FindTaskByPartialId returns a task if there is only one match with the given partial id.
 	FindTaskByPartialId(partialId string, filter Filter) (Task, error)
-	// FindPendingTaskByName returns a task with the given name and status "pending".
-	FindPendingTaskByName(name string, filter Filter) (Task, error)
+	// FindTaskByNameAndStatus returns a task with the given name and status "pending".
+	FindTaskByNameAndStatus(name string, filter Filter) (Task, error)
 	// FindTasksByStatus returns all tasks filtering by statuses in the database.
 	ListTasksByStatus(statuses ...Status) ([]Task, error)
 	// RemoveTaskById removes a task by id.

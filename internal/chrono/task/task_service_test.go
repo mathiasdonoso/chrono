@@ -11,7 +11,7 @@ type MockRepository interface {
 	CreateTask(task *Task) error
 	FindTaskById(id string) (Task, error)
 	FindTaskByPartialId(partialId string, filter Filter) (Task, error)
-	FindPendingTaskByName(name string, filter Filter) (Task, error)
+	FindTaskByNameAndStatus(name string, filter Filter) (Task, error)
 	ListTasksByStatus(statuses ...Status) ([]Task, error)
 	RemoveTaskById(id string) error
 	FindByIdOrCreate(idOrName string, filter Filter) (Task, error)
@@ -64,7 +64,7 @@ func (r mockTaskRepository) CreateTask(task *Task) error {
 	return nil
 }
 
-func (r mockTaskRepository) FindPendingTaskByName(name string, filter Filter) (Task, error) {
+func (r mockTaskRepository) FindTaskByNameAndStatus(name string, filter Filter) (Task, error) {
 	return Task{}, nil
 }
 
@@ -73,14 +73,14 @@ func (r mockTaskRepository) ListTasksByStatus(statuses ...Status) ([]Task, error
 		{
 			ID:        "1",
 			Name:      "Task 1",
-			Status:    PENDING,
+			Status:    TODO,
 			CreatedAt: time.Time{},
 			UpdatedAt: time.Time{},
 		},
 		{
 			ID:        "2",
 			Name:      "Task 2",
-			Status:    PENDING,
+			Status:    TODO,
 			CreatedAt: time.Time{},
 			UpdatedAt: time.Time{},
 		},
@@ -111,11 +111,11 @@ func (r mockTaskFindDataRepository) RemoveTaskById(id string) error {
 	return nil
 }
 
-func (r mockTaskFindDataRepository) FindPendingTaskByName(name string, filter Filter) (Task, error) {
+func (r mockTaskFindDataRepository) FindTaskByNameAndStatus(name string, filter Filter) (Task, error) {
 	return Task{
 		ID:        "1",
 		Name:      name,
-		Status:    PENDING,
+		Status:    TODO,
 		CreatedAt: time.Time{},
 		UpdatedAt: time.Time{},
 	}, nil
@@ -137,7 +137,7 @@ func TestCreateTaskShouldCreateNewTaskWithStatusPending(t *testing.T) {
 
 	taskCreated := r.taskCreated
 
-	if taskCreated.Status != PENDING {
+	if taskCreated.Status != TODO {
 		t.Errorf("expected task status to be pending, got %s", taskCreated.Status)
 	}
 }
@@ -161,7 +161,7 @@ func TestListTasksByStatusShouldReturnTasks(t *testing.T) {
 	p := mockProgressRepository{}
 	s := NewService(r, p)
 
-	statuses := []Status{PENDING}
+	statuses := []Status{TODO}
 
 	tasks, err := s.ListTasksByStatus(statuses...)
 

@@ -189,7 +189,7 @@ func (r *repository) FindTaskById(id string) (Task, error) {
 	return task, nil
 }
 
-func (r *repository) FindPendingTaskByName(name string, filter Filter) (Task, error) {
+func (r *repository) FindTaskByNameAndStatus(name string, filter Filter) (Task, error) {
 	task := Task{}
 
 	query := "SELECT id, name, status, created_at, updated_at FROM tasks WHERE name = $1"
@@ -226,7 +226,7 @@ func (r *repository) FindPendingTaskByName(name string, filter Filter) (Task, er
 func (r *repository) CreateTask(task *Task) error {
 	task.ID = uuid.New().String()
 	if task.Status == "" {
-		task.Status = PENDING
+		task.Status = TODO
 	}
 	task.CreatedAt = time.Now()
 	task.UpdatedAt = time.Now()
@@ -256,4 +256,3 @@ func (r *repository) RemoveTaskById(id string) error {
 
 	return nil
 }
-
