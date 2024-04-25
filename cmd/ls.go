@@ -31,7 +31,7 @@ showing the following information:
 	Run: func(cmd *cobra.Command, args []string) {
 		all, _ := cmd.Flags().GetBool("all")
 
-		statuses := []task.Status{task.PENDING, task.IN_PROGRESS, task.PAUSED}
+		statuses := []task.Status{task.TODO, task.IN_PROGRESS}
 		if all {
 			statuses = append(statuses, task.DONE)
 		}
@@ -70,11 +70,11 @@ func printFormatedResponse(tasks []task.Task) {
 
 		fmt.Fprintln(
 			w,
-			id + "\t",
-			t.Name + "\t",
-			t.Status + "\t",
-			t.CreatedAt.Format("2006-01-02 15:04:05") + "\t",
-			t.UpdatedAt.Format("2006-01-02 15:04:05") + "\t",
+			id+"\t",
+			t.Name+"\t",
+			t.Status+"\t",
+			t.CreatedAt.Format("2006-01-02 15:04:05")+"\t",
+			t.UpdatedAt.Format("2006-01-02 15:04:05")+"\t",
 		)
 	}
 

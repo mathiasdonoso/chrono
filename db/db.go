@@ -77,4 +77,3 @@ func (d *Database) BuildSchema() error {
 
 	return nil
 }
-
