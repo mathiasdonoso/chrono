@@ -14,11 +14,11 @@ import (
 
 // startCmd represents the start command
 var startCmd = &cobra.Command{
-	Use:   "start",
-	Short: "Start to record activity on a specific task.",
-	Long: `Start recording progress on a specific task. Creates the task if not exists.`,
+	Use:     "start",
+	Short:   "Start to record activity on a specific task",
+	Long:    `Start recording progress on a specific task, creates the task if not exists`,
 	Version: "0.0.1",
-	Args: cobra.ExactArgs(1),
+	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		idOrName := args[0]
 

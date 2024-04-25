@@ -23,7 +23,7 @@ The new task will have the following properties:
 - CreatedAt: The date and time the task was created
 - UpdatedAt: The date and time the task was last updated
 `,
-	Args: cobra.ExactArgs(1),
+	Args:    cobra.ExactArgs(1),
 	Version: "0.0.1",
 	Run: func(cmd *cobra.Command, args []string) {
 		name := args[0]
@@ -53,4 +53,3 @@ The new task will have the following properties:
 func init() {
 	rootCmd.AddCommand(addCmd)
 }
-

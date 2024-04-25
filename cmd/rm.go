@@ -15,8 +15,8 @@ import (
 // rmCmd represents the rm command
 var rmCmd = &cobra.Command{
 	Use:   "rm",
-	Short: "Delete a task by id",
-	Long: `Delete a task by id or any of the first 8 character of the id if there exists only one match.`,
+	Short: "Deletes a task by id",
+	Long:  `Deletes a task by id or any of the first 8 character of the id if there exists only one match.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		id := args[0]
 
