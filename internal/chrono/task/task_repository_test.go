@@ -9,7 +9,20 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 )
 
+type uuidGeneratorMock struct{}
+
+var newUUIDMock func() string
+
+func (u uuidGeneratorMock) NewUUID() string {
+	return newUUIDMock()
+}
+
 func TestCreateTaskShouldInsertNewRowInDB(t *testing.T) {
+	idGenerator = uuidGeneratorMock{}
+	newUUIDMock = func() string {
+		return "395e2367-c69c-45e2-b3e4-e9db5708ea82"
+	}
+
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
